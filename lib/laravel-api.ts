@@ -52,3 +52,7 @@ export async function getGalleryActivities() {
 export const laravelApi = {
   fetch: apiFetch,
 }
+
+export async function getServiceContent(serviceSlug: string) {
+  return apiFetch(`/services/${serviceSlug}`)
+}
