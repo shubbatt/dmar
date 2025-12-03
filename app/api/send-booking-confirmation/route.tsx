@@ -5,39 +5,39 @@ export async function POST(request: NextRequest) {
     const bookingData = await request.json()
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
     
-    console.log("[v0] Received booking data:", bookingData)
+    console.log("[v0] Received booking data:", JSON.stringify(bookingData, null, 2))
     
-    // Check for package booking - could be 'selectedPackage' or 'service'
+    // Check for package booking
     const packageName = bookingData.selectedPackage || bookingData.service
-    const isPackageBooking = !!packageName
+    const isPackageBooking = Boolean(packageName)
     
-    // Transform frontend data to backend format
-    const transformedData: any = {
+    console.log("[v0] Package name:", packageName)
+    console.log("[v0] Is package booking:", isPackageBooking)
+    
+    // Transform data
+    const transformedData = {
       booking_type: isPackageBooking ? 'package' : 'custom',
-      customer_name: bookingData.customer?.name,
-      customer_email: bookingData.customer?.email,
-      customer_phone: bookingData.customer?.phone,
-      customer_whatsapp: bookingData.customer?.whatsapp,
-      special_requests: bookingData.customer?.specialRequests,
-      guests: bookingData.guests,
-      total_price: bookingData.totalPrice,
+      customer_name: bookingData.customer?.name || '',
+      customer_email: bookingData.customer?.email || '',
+      customer_phone: bookingData.customer?.phone || '',
+      customer_whatsapp: bookingData.customer?.whatsapp || null,
+      special_requests: bookingData.customer?.specialRequests || null,
+      guests: bookingData.guests || 1,
+      total_price: bookingData.totalPrice || 0,
+      ...(isPackageBooking ? {
+        package_name: packageName,
+        package_details: bookingData.packageDetails || null,
+        dates: bookingData.dates || bookingData.date || null,
+      } : {
+        check_in_date: bookingData.customBooking?.checkIn || null,
+        check_out_date: bookingData.customBooking?.checkOut || null,
+        accommodation_id: bookingData.customBooking?.accommodationId || null,
+        activities: bookingData.customBooking?.activities || null,
+        services: bookingData.customBooking?.services || null,
+      }),
     }
     
-    // Add package-specific fields
-    if (isPackageBooking) {
-      transformedData.package_name = packageName
-      transformedData.package_details = bookingData.packageDetails
-      transformedData.dates = bookingData.dates || bookingData.date
-    } else {
-      // Add custom booking fields
-      transformedData.check_in_date = bookingData.customBooking?.checkIn
-      transformedData.check_out_date = bookingData.customBooking?.checkOut
-      transformedData.accommodation_id = bookingData.customBooking?.accommodationId
-      transformedData.activities = bookingData.customBooking?.activities
-      transformedData.services = bookingData.customBooking?.services
-    }
-    
-    console.log("[v0] Transformed data:", transformedData)
+    console.log("[v0] Transformed data:", JSON.stringify(transformedData, null, 2))
     
     const response = await fetch(`${backendUrl}/api/v1/bookings`, {
       method: "POST",
@@ -47,18 +47,27 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(transformedData),
     })
 
-    if (!response.ok) {
-      const errorData = await response.json()
-      console.error("[v0] Backend error:", errorData)
-      return NextResponse.json(errorData, { status: response.status })
+    const responseText = await response.text()
+    console.log("[v0] Backend response:", responseText)
+    
+    let result
+    try {
+      result = JSON.parse(responseText)
+    } catch (e) {
+      console.error("[v0] Failed to parse response:", responseText.substring(0, 200))
+      throw new Error("Invalid response from backend")
     }
 
-    const result = await response.json()
+    if (!response.ok) {
+      console.error("[v0] Backend error:", result)
+      return NextResponse.json(result, { status: response.status })
+    }
+
     return NextResponse.json(result)
-  } catch (error: any) {
+  } catch (error) {
     console.error("[v0] Booking error:", error)
     return NextResponse.json(
-      { error: error.message || "Failed to process booking" },
+      { error: error instanceof Error ? error.message : "Failed to process booking" },
       { status: 500 }
     )
   }
