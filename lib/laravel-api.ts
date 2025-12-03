@@ -17,6 +17,11 @@ async function apiFetch(endpoint: string, options?: RequestInit) {
   return response.json()
 }
 
+// Home
+export async function getHomeSettings() {
+  return apiFetch('/home-settings')
+}
+
 // Packages & Trips
 export async function getPackages() {
   return apiFetch('/packages')
@@ -29,11 +34,6 @@ export async function getGroupTripsContent() {
 // Translations
 export async function getTranslations(locale: string) {
   return apiFetch(`/translations/${locale}`)
-}
-
-// Home
-export async function getHomeSettings() {
-  return apiFetch('/home-settings')
 }
 
 // Accommodations
@@ -59,6 +59,10 @@ export async function getOceanExcursionsSection() {
 }
 
 // Services
+export async function getServices() {
+  return apiFetch('/services')
+}
+
 export async function getServiceContent(serviceSlug: string) {
   return apiFetch(`/services/${serviceSlug}`)
 }
@@ -83,9 +87,4 @@ export async function getGalleryActivities() {
 // Generic API object
 export const laravelApi = {
   fetch: apiFetch,
-}
-
-// Services list
-export async function getServices() {
-  return apiFetch('/services')
 }
