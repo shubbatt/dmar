@@ -80,3 +80,8 @@ export async function getGalleryActivities() {
 export const laravelApi = {
   fetch: apiFetch,
 }
+
+// Activities
+export async function getActivities() {
+  return apiFetch('/activities')
+}
