@@ -7,10 +7,11 @@ export async function POST(request: NextRequest) {
     
     console.log("[v0] Received booking data:", bookingData)
     
+    const isPackageBooking = !!bookingData.selectedPackage
+    
     // Transform frontend data to backend format
-    const transformedData = {
-      booking_type: bookingData.selectedPackage ? 'package' : 'custom',
-      package_name: bookingData.selectedPackage || null,
+    const transformedData: any = {
+      booking_type: isPackageBooking ? 'package' : 'custom',
       customer_name: bookingData.customer?.name,
       customer_email: bookingData.customer?.email,
       customer_phone: bookingData.customer?.phone,
@@ -18,9 +19,20 @@ export async function POST(request: NextRequest) {
       special_requests: bookingData.customer?.specialRequests,
       guests: bookingData.guests,
       total_price: bookingData.totalPrice,
-      dates: bookingData.dates,
-      package_details: bookingData.packageDetails,
-      custom_booking: bookingData.customBooking,
+    }
+    
+    // Add package-specific fields
+    if (isPackageBooking) {
+      transformedData.package_name = bookingData.selectedPackage
+      transformedData.package_details = bookingData.packageDetails
+      transformedData.dates = bookingData.dates
+    } else {
+      // Add custom booking fields
+      transformedData.check_in_date = bookingData.customBooking?.checkIn
+      transformedData.check_out_date = bookingData.customBooking?.checkOut
+      transformedData.accommodation_id = bookingData.customBooking?.accommodationId
+      transformedData.activities = bookingData.customBooking?.activities
+      transformedData.services = bookingData.customBooking?.services
     }
     
     console.log("[v0] Transformed data:", transformedData)
