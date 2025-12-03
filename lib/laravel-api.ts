@@ -84,3 +84,8 @@ export async function getGalleryActivities() {
 export const laravelApi = {
   fetch: apiFetch,
 }
+
+// Services list
+export async function getServices() {
+  return apiFetch('/services')
+}
