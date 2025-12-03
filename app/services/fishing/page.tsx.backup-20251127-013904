@@ -1,0 +1,241 @@
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Clock, Users, Fish, Calendar, ArrowLeft, Sun, Moon } from "lucide-react"
+import Link from "next/link"
+
+export default function FishingPage() {
+  const fishingPackages = [
+    {
+      title: "Half Day Fishing",
+      description:
+        "Perfect for those with limited time. Experience the thrill of fishing in the rich waters of the Maldives.",
+      price: 500,
+      duration: "4 hours",
+      capacity: "1-4 people",
+      schedule: "Morning (5:00 AM - 9:00 AM) OR Afternoon (1:00 PM - 5:00 PM)",
+      includes: ["Modern fishing equipment", "Professional guide", "Drinks and snacks", "Bait included"],
+      image: "/fish1.jpeg",
+      icon: Sun,
+    },
+    {
+      title: "Full Day Fishing",
+      description:
+        "Complete fishing experience with more time on the water and increased chances of catching various fish.",
+      price: 900,
+      duration: "8 hours",
+      capacity: "1-4 people",
+      schedule: "5:00 AM - 1:00 PM",
+      includes: ["Modern fishing equipment", "Professional guide", "Drinks and snacks", "Lunch included"],
+      image: "/fish2.jpeg",
+      icon: Sun,
+    },
+    {
+      title: "Night Fishing",
+      description: "Unique and exciting experience under the starry sky, fishing for nocturnal species.",
+      price: 200,
+      duration: "2 hours",
+      capacity: "Per person",
+      schedule: "6:00 PM - 8:00 PM",
+      includes: ["Modern fishing equipment", "Professional guide", "Drinks and snacks", "Night lighting"],
+      image: "/fish3.jpeg",
+      icon: Moon,
+    },
+  ]
+
+  const fishSpecies = [
+    { name: "Yellowfin Tuna", description: "Large, powerful fish perfect for sport fishing" },
+    { name: "Giant Trevally", description: "Aggressive predator known for strong fights" },
+    { name: "Mahi Mahi", description: "Colorful and acrobatic when hooked" },
+    { name: "Wahoo", description: "Fast swimming fish with excellent table fare" },
+    { name: "Barracuda", description: "Sharp-toothed predator with explosive strikes" },
+    { name: "Red Snapper", description: "Delicious bottom fish found around reefs" },
+  ]
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-green-50 to-blue-50">
+      {/* Navigation */}
+      <nav className="fixed top-0 w-full z-50 backdrop-blur-md bg-white/10 border-b border-white/20">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="flex items-center space-x-2">
+              <ArrowLeft className="h-5 w-5 text-gray-700" />
+              <span className="text-gray-700">Back to Home</span>
+            </Link>
+            <Link href="/booking?service=fishing">
+              <Button className="bg-teal-600 hover:bg-teal-700 text-white">Book Fishing</Button>
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="relative pt-24 pb-16 overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url('/fish3.jpeg')`,
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-teal-900/60 via-green-900/40 to-blue-900/60" />
+
+        <div className="relative z-10 container mx-auto px-4 text-center">
+          <Badge className="mb-6 bg-white/20 text-white border-white/30 backdrop-blur-sm">
+            Expert Guides & Premium Equipment
+          </Badge>
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 text-balance">Sport Fishing Adventures</h1>
+          <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto text-pretty leading-relaxed">
+            Experience the thrill of sport fishing with expert guides and top-notch equipment. From half-day excursions
+            to full-day adventures in the rich waters of the Maldives.
+          </p>
+        </div>
+      </section>
+
+      {/* Fishing Packages */}
+      <section className="py-20 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-800 mb-6">Fishing Packages</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Choose from our range of fishing experiences, from quick half-day trips to comprehensive full-day
+              adventures.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-8">
+            {fishingPackages.map((pkg, index) => (
+              <Card
+                key={index}
+                className="group overflow-hidden backdrop-blur-sm bg-white/60 border-white/20 hover:bg-white/80 transition-all duration-300"
+              >
+                <div className="aspect-video overflow-hidden relative">
+                  <img
+                    src={pkg.image || "/placeholder.svg"}
+                    alt={pkg.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-4 right-4">
+                    <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                      <pkg.icon className="h-6 w-6 text-white" />
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6">
+                  <h3 className="text-2xl font-bold text-gray-800 mb-3">{pkg.title}</h3>
+                  <p className="text-gray-600 mb-4 leading-relaxed">{pkg.description}</p>
+
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Clock className="h-4 w-4 mr-2 text-teal-500" />
+                      {pkg.duration}
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Users className="h-4 w-4 mr-2 text-teal-500" />
+                      {pkg.capacity}
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <p className="text-sm text-gray-600 font-medium mb-2">Schedule:</p>
+                    <p className="text-sm text-gray-600">{pkg.schedule}</p>
+                  </div>
+
+                  <div className="mb-6">
+                    <h4 className="font-semibold text-gray-800 mb-2">Includes:</h4>
+                    <ul className="text-sm text-gray-600 space-y-1">
+                      {pkg.includes.map((item, i) => (
+                        <li key={i} className="flex items-center">
+                          <Fish className="h-3 w-3 mr-2 text-green-500" />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-3xl font-bold text-teal-600">${pkg.price}</span>
+                    <Link href="/booking?service=fishing">
+                      <Button className="bg-teal-600 hover:bg-teal-700">
+                        <Calendar className="mr-2 h-4 w-4" />
+                        Book Now
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Fish Species Section */}
+      <section className="py-20 px-4 bg-gradient-to-r from-teal-50 to-green-50">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-800 mb-6">Target Species</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              The rich waters around the Maldives are home to numerous game fish species perfect for sport fishing.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {fishSpecies.map((fish, index) => (
+              <Card
+                key={index}
+                className="p-6 backdrop-blur-sm bg-white/60 border-white/20 hover:bg-white/80 transition-all duration-300"
+              >
+                <div className="flex items-center mb-3">
+                  <Fish className="h-6 w-6 text-teal-600 mr-3" />
+                  <h3 className="text-lg font-bold text-gray-800">{fish.name}</h3>
+                </div>
+                <p className="text-gray-600 text-sm leading-relaxed">{fish.description}</p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Techniques Section */}
+      <section className="py-20 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-800 mb-6">Fishing Techniques</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Our experienced guides will teach you various fishing techniques to maximize your success.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="text-center p-8 backdrop-blur-sm bg-white/60 border-white/20">
+              <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Fish className="h-8 w-8 text-teal-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-4">Popping</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Surface fishing technique using poppers to attract aggressive predators like GT and tuna.
+              </p>
+            </Card>
+            <Card className="text-center p-8 backdrop-blur-sm bg-white/60 border-white/20">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Fish className="h-8 w-8 text-green-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-4">Jigging</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Vertical fishing technique perfect for targeting bottom fish and deep water species.
+              </p>
+            </Card>
+            <Card className="text-center p-8 backdrop-blur-sm bg-white/60 border-white/20">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Fish className="h-8 w-8 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-4">Trolling</h3>
+              <p className="text-gray-600 leading-relaxed">
+                Traditional technique dragging lures behind the boat to catch pelagic species.
+              </p>
+            </Card>
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+}

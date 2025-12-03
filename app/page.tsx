@@ -1,0 +1,731 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Calendar, MapPin, Users, Star, Waves, Camera, Heart, Compass, Fish, Anchor, Menu, Loader2, Phone, Mail, Instagram, Award, Globe } from "lucide-react"
+import Link from "next/link"
+import { useLanguage } from "@/lib/language-context"
+import { LanguageSwitcher } from "@/components/language-switcher"
+import { getHomeSettings, getFeaturedAccommodations, getGroupTripsContent, getAboutContent, getOceanExcursionsSection } from "@/lib/laravel-api"
+
+export default function HomePage() {
+  const { t, language } = useLanguage()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [homeSettings, setHomeSettings] = useState<any>(null)
+  const [featuredHotels, setFeaturedHotels] = useState<any[]>([])
+  const [featuredResorts, setFeaturedResorts] = useState<any[]>([])
+  const [groupTripsContent, setGroupTripsContent] = useState<any>(null)
+  const [aboutContent, setAboutContent] = useState<any>(null)
+  const [oceanExcursions, setOceanExcursions] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchHomeData() {
+      try {
+        setLoading(true)
+        const [settings, featured, groupTrips, about, excursions] = await Promise.all([
+          getHomeSettings(),
+          getFeaturedAccommodations(language),
+          getGroupTripsContent(),
+          getAboutContent(),
+          getOceanExcursionsSection()
+        ])
+        setHomeSettings(settings)
+        setFeaturedHotels(featured.hotels || [])
+        setFeaturedResorts(featured.resorts || [])
+        setGroupTripsContent(groupTrips)
+        setAboutContent(about)
+        setOceanExcursions(excursions)
+      } catch (err) {
+        console.error('[D\'Mar] Failed to load home page data:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchHomeData()
+  }, [language])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-teal-50">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-cyan-600 mx-auto mb-4" />
+          <p className="text-gray-600 font-medium">Loading D'Mar Travels...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-teal-50">
+      {/* Navigation */}
+      <nav className="fixed top-0 w-full z-50 backdrop-blur-md bg-white/10 border-b border-white/20">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+              <img src="/dmar-logo-final.png" alt="D'Mar Travels Logo" className="h-10 w-auto" />
+              <span className="text-2xl font-bold text-gray-800">D'Mar</span>
+            </Link>
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-8">
+              <div className="relative group">
+                <button className="text-gray-700 hover:text-cyan-600 font-medium flex items-center">
+                  {t("services")}
+                </button>
+                <div className="absolute left-0 mt-2 w-56 bg-white/90 backdrop-blur-sm border border-white/20 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                  <Link href="/services/diving" className="block px-4 py-3 hover:bg-cyan-50 rounded-t-lg text-gray-700 hover:text-cyan-600">{t("diving")}</Link>
+                  <Link href="/services/fishing" className="block px-4 py-3 hover:bg-cyan-50 text-gray-700 hover:text-cyan-600">{t("fishing")}</Link>
+                  <Link href="/services/excursions" className="block px-4 py-3 hover:bg-cyan-50 text-gray-700 hover:text-cyan-600">{t("excursions")}</Link>
+                  
+                </div>
+              </div>
+              <Link href="/services/activities-gallery" className="text-gray-700 hover:text-cyan-600 font-medium">Activities Gallery</Link>
+              {/* 
+              <Link href="/hotels" className="text-gray-700 hover:text-cyan-600 font-medium">{t("hotels")}</Link>
+              <Link href="/resorts" className="text-gray-700 hover:text-cyan-600 font-medium">{t("resorts")}</Link>
+              Desktop Navigation */}
+              <Link href="#about" className="text-gray-700 hover:text-cyan-600 font-medium">{t("about")}</Link>
+              <Link href="#contact" className="text-gray-700 hover:text-cyan-600 font-medium">{t("contact")}</Link>
+              <LanguageSwitcher />
+              <Link href="/booking">
+                <Button className="bg-cyan-600 hover:bg-cyan-700 text-white">
+                  {t("bookNow")}
+                </Button>
+              </Link>
+            </div>
+
+            {/* Mobile Menu */}
+            <div className="md:hidden flex items-center space-x-4">
+              <LanguageSwitcher />
+              <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="text-gray-700 hover:text-cyan-600">
+                    <Menu className="h-6 w-6" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-80 bg-blue-50/80 backdrop-blur-xl border-l border-blue-200/30">
+                  <div className="flex flex-col space-y-6 mt-8">
+                    <Link href="/" className="flex items-center space-x-2 mb-4">
+                      <img src="/dmar-logo-final.png" alt="D'Mar Travels" className="h-10 w-auto" />
+                      <span className="text-2xl font-bold text-blue-900">D'Mar</span>
+                    </Link>
+                    <div className="space-y-1">
+                      <div className="text-xs font-semibold text-blue-600/70 uppercase tracking-wide px-3 py-2">Services</div>
+                      <Link href="/services/diving" className="block px-3 py-2 rounded-lg text-blue-900 hover:bg-blue-100/60 hover:text-cyan-700 transition-colors font-medium" onClick={() => setMobileMenuOpen(false)}>{t("diving")}</Link>
+                      <Link href="/services/fishing" className="block px-3 py-2 rounded-lg text-blue-900 hover:bg-blue-100/60 hover:text-cyan-700 transition-colors font-medium" onClick={() => setMobileMenuOpen(false)}>{t("fishing")}</Link>
+                      <Link href="/services/excursions" className="block px-3 py-2 rounded-lg text-blue-900 hover:bg-blue-100/60 hover:text-cyan-700 transition-colors font-medium" onClick={() => setMobileMenuOpen(false)}>{t("excursions")}</Link>
+                      <Link href="/services/activities-gallery" className="block px-3 py-2 rounded-lg text-blue-900 hover:bg-blue-100/60 hover:text-cyan-700 transition-colors font-medium" onClick={() => setMobileMenuOpen(false)}>Activities Gallery</Link>
+                      {/*}
+                      <div className="text-xs font-semibold text-blue-600/70 uppercase tracking-wide px-3 py-2 mt-4">Accommodations</div>
+                      <Link href="/hotels" className="block px-3 py-2 rounded-lg text-blue-900 hover:bg-blue-100/60 hover:text-cyan-700 transition-colors font-medium" onClick={() => setMobileMenuOpen(false)}>{t("hotels")}</Link>
+                      <Link href="/resorts" className="block px-3 py-2 rounded-lg text-blue-900 hover:bg-blue-100/60 hover:text-cyan-700 transition-colors font-medium" onClick={() => setMobileMenuOpen(false)}>{t("resorts")}</Link>
+                      */}
+                      <div className="text-xs font-semibold text-blue-600/70 uppercase tracking-wide px-3 py-2 mt-4">Information</div>
+                      <Link href="#about" className="block px-3 py-2 rounded-lg text-blue-900 hover:bg-blue-100/60 hover:text-cyan-700 transition-colors font-medium" onClick={() => setMobileMenuOpen(false)}>{t("about")}</Link>
+                      <Link href="#contact" className="block px-3 py-2 rounded-lg text-blue-900 hover:bg-blue-100/60 hover:text-cyan-700 transition-colors font-medium" onClick={() => setMobileMenuOpen(false)}>{t("contact")}</Link>
+                      
+                      <div className="pt-4">
+                        <Link href="/booking" onClick={() => setMobileMenuOpen(false)}>
+                          <Button className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white shadow-lg">{t("bookNow")}</Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gray-900">
+        <div className="absolute inset-0 w-full h-full">
+          {homeSettings?.hero_image_url && (
+            <img 
+              src={homeSettings.hero_image_url.startsWith('http') ? homeSettings.hero_image_url : `http://localhost:8000/storage/${homeSettings.hero_image_url}`}
+              alt="D'Mar Travels Hero" 
+              className="w-full h-full object-cover" 
+            />
+          )}
+          {homeSettings?.hero_video_url && (
+            <video 
+              src={homeSettings.hero_video_url.startsWith('http') ? homeSettings.hero_video_url : `http://localhost:8000/storage/${homeSettings.hero_video_url}`}
+              autoPlay 
+              loop 
+              muted 
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover" 
+            />
+          )}
+          {!homeSettings?.hero_video_url && !homeSettings?.hero_image_url && (
+            <div className="w-full h-full bg-gradient-to-br from-cyan-600 to-blue-800" />
+          )}
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/50" />
+
+        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+          <Badge className="mb-6 bg-cyan-800/80 text-white border-cyan-700 backdrop-blur-sm text-base px-4 py-1">
+            Your Gateway to the Maldives
+          </Badge>
+          <h1 className="text-4xl md:text-7xl font-bold text-white mb-6 drop-shadow-2xl">
+            {homeSettings?.hero_title || "Welcome to D'Mar Travels"}
+          </h1>
+          <p className="text-xl md:text-2xl text-white/90 mb-8 drop-shadow-lg">
+            {homeSettings?.hero_subtitle || "Ocean adventures, affordable stays, and unforgettable group journeys in paradise"}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/booking">
+              <Button size="lg" className="bg-cyan-600 hover:bg-cyan-700 text-white text-lg px-8">
+                <Calendar className="mr-2 h-5 w-5" />
+                Book Your Adventure
+              </Button>
+            </Link>
+            <Link href="#services">
+              <Button size="lg" variant="outline" className="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border-white/30 text-lg px-8">
+                <Compass className="mr-2 h-5 w-5" />
+                Explore Services
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Ocean Excursions Section */}
+      {oceanExcursions && (
+        <section id="services" className="py-20 px-4 bg-white">
+          <div className="container mx-auto">
+            <div className="text-center mb-16">
+              <Badge className="mb-6 bg-cyan-100 text-cyan-800 text-base px-4 py-1">
+                {oceanExcursions.badge_text}
+              </Badge>
+              <h2 className="text-3xl md:text-5xl font-bold text-gray-800 mb-4">
+                {oceanExcursions.title}
+              </h2>
+              {oceanExcursions.subtitle && (
+                <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                  {oceanExcursions.subtitle}
+                </p>
+              )}
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+              {oceanExcursions.cards?.map((card: any, index: number) => {
+                const IconComponent = {
+                  Waves,
+                  Fish,
+                  Camera,
+                  Anchor,
+                  Heart,
+                  Compass,
+                }[card.icon] || Waves
+
+                return (
+                  <Card key={index} className="group overflow-hidden bg-white hover:shadow-2xl transition-all duration-300">
+                    <div className="relative h-64 overflow-hidden">
+                      {card.image && (
+                        <img 
+                          src={card.image}
+                          alt={card.title}
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                      )}
+                      <div className={`absolute inset-0 bg-gradient-to-t from-${card.color}-900 to-transparent`} />
+                      <div className="absolute bottom-4 left-4 right-4 z-10">
+                        <IconComponent className={`h-10 w-10 text-${card.color}-300 mb-2`} />
+                        <h3 className="text-xl font-bold text-white">{card.title}</h3>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <p className="text-gray-600 mb-4">{card.description}</p>
+                      <Link href={card.link}>
+                        <Button variant="outline" className={`w-full border-${card.color}-600 text-${card.color}-600 hover:bg-${card.color}-50`}>
+                          Learn More
+                        </Button>
+                      </Link>
+                    </div>
+                  </Card>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Group Trips Section */}
+      {groupTripsContent && (
+        <section className="py-20 px-4 bg-gradient-to-br from-pink-50 via-purple-50 to-cyan-50">
+          <div className="container mx-auto">
+            <div className="text-center mb-16">
+              <Badge className="mb-6 bg-pink-100 text-pink-800 text-base px-4 py-1">
+                {groupTripsContent.section_badge}
+              </Badge>
+              <h2 className="text-3xl md:text-5xl font-bold text-gray-800 mb-4">
+                {groupTripsContent.section_title}
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                {groupTripsContent.section_subtitle}
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+              {/* Regular Group Trips */}
+              <Card className="overflow-hidden bg-white/60 backdrop-blur-sm border-white/20 hover:shadow-2xl transition-all">
+                <div className="relative h-80">
+                  {groupTripsContent.regular_image_url ? (
+                    <img 
+                      src={groupTripsContent.regular_image_url} 
+                      alt={groupTripsContent.regular_title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-t from-cyan-900/80 to-transparent" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-cyan-900/80 to-transparent" />
+                </div>
+                <div className="p-8">
+                  <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                    {groupTripsContent.regular_title}
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    {groupTripsContent.regular_description}
+                  </p>
+                  <ul className="mb-6 space-y-2">
+                    {groupTripsContent.regular_features?.map((feature: string, index: number) => (
+                      <li key={index} className="text-sm text-gray-600 flex items-center">
+                        <span className="mr-2">•</span>{feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-bold text-cyan-600">
+                      {groupTripsContent.regular_price}
+                    </span>
+                    <Link href="/booking?service=group">
+                      <Button className="bg-cyan-600 hover:bg-cyan-700 text-white">
+                        <Users className="mr-2 h-5 w-5" />
+                        {groupTripsContent.regular_cta_text}
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </Card>
+
+              {/* ALUNA Women-Only Retreats */}
+              <Card className="overflow-hidden bg-white/60 backdrop-blur-sm border-white/20 hover:shadow-2xl transition-all">
+                <div className="relative h-80">
+                  {groupTripsContent.aluna_image_url ? (
+                    <img 
+                      src={groupTripsContent.aluna_image_url} 
+                      alt={groupTripsContent.aluna_title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-t from-pink-900/80 to-transparent" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-pink-900/80 to-transparent" />
+                  <Badge className="absolute top-4 left-4 bg-pink-600 text-white z-10">Women Only</Badge>
+                </div>
+                <div className="p-8">
+                  <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                    {groupTripsContent.aluna_title}
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    {groupTripsContent.aluna_description}
+                  </p>
+                  <ul className="mb-6 space-y-2">
+                    {groupTripsContent.aluna_features?.map((feature: string, index: number) => (
+                      <li key={index} className="text-sm text-gray-600 flex items-center">
+                        <span className="mr-2">•</span>{feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-bold text-pink-600">
+                      {groupTripsContent.aluna_price}
+                    </span>
+                    <Link href="/booking?service=aluna">
+                      <Button className="bg-pink-600 hover:bg-pink-700 text-white">
+                        <Heart className="mr-2 h-5 w-5" />
+                        {groupTripsContent.aluna_cta_text}
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Testimonials Section */}
+      <section className="py-20 px-4 bg-white">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <Badge className="mb-6 bg-amber-100 text-amber-800 text-base px-4 py-1">Guest Reviews</Badge>
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-800 mb-4">
+              What Our Guests Say
+            </h2>
+            <p className="text-xl text-gray-600">Real experiences from real travelers</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <Card className="p-6 bg-white/60 backdrop-blur-sm border-white/20 hover:shadow-lg transition-all">
+              <div className="flex mb-4">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-5 w-5 text-amber-500 fill-amber-500" />
+                ))}
+              </div>
+              <p className="text-gray-700 mb-4 italic">
+                "Best trip of my life. Everything was perfectly organized!"
+              </p>
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-pink-200 rounded-full flex items-center justify-center text-pink-700 font-bold mr-3">
+                  L
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-800">Laura</p>
+                  <p className="text-sm text-gray-500">Spain</p>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-6 bg-white/60 backdrop-blur-sm border-white/20 hover:shadow-lg transition-all">
+              <div className="flex mb-4">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-5 w-5 text-amber-500 fill-amber-500" />
+                ))}
+              </div>
+              <p className="text-gray-700 mb-4 italic">
+                "Swimming with manta rays was a dream come true."
+              </p>
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center text-blue-700 font-bold mr-3">
+                  M
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-800">Mark</p>
+                  <p className="text-sm text-gray-500">Germany</p>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-6 bg-white/60 backdrop-blur-sm border-white/20 hover:shadow-lg transition-all">
+              <div className="flex mb-4">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-5 w-5 text-amber-500 fill-amber-500" />
+                ))}
+              </div>
+              <p className="text-gray-700 mb-4 italic">
+                "Affordable, yet felt like pure luxury."
+              </p>
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-cyan-200 rounded-full flex items-center justify-center text-cyan-700 font-bold mr-3">
+                  A
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-800">Anna</p>
+                  <p className="text-sm text-gray-500">Italy</p>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 px-4 bg-gradient-to-br from-cyan-50 to-blue-50">
+        <div className="container mx-auto max-w-4xl">
+          <div className="text-center mb-16">
+            <Badge className="mb-6 bg-cyan-100 text-cyan-800 text-base px-4 py-1">FAQ</Badge>
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-800 mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-xl text-gray-600">Everything you need to know about your Maldives adventure</p>
+          </div>
+
+          <Accordion type="single" collapsible className="space-y-4">
+            <AccordionItem value="item-1" className="bg-white/60 backdrop-blur-sm border-white/20 rounded-lg px-6">
+              <AccordionTrigger className="text-lg font-semibold text-gray-800 hover:text-cyan-600">
+                Do I need to be a diver to join?
+              </AccordionTrigger>
+              <AccordionContent className="text-gray-600">
+                No—many of our trips are for snorkelers, beginners, or just ocean lovers. We welcome all experience levels and provide proper guidance for everyone.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-2" className="bg-white/60 backdrop-blur-sm border-white/20 rounded-lg px-6">
+              <AccordionTrigger className="text-lg font-semibold text-gray-800 hover:text-cyan-600">
+                Are the packages all-inclusive?
+              </AccordionTrigger>
+              <AccordionContent className="text-gray-600">
+                Yes! We cover stays, transfers, daily activities, and most meals. You can focus on enjoying your experience without worrying about additional costs.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-3" className="bg-white/60 backdrop-blur-sm border-white/20 rounded-lg px-6">
+              <AccordionTrigger className="text-lg font-semibold text-gray-800 hover:text-cyan-600">
+                Do you help with flights?
+              </AccordionTrigger>
+              <AccordionContent className="text-gray-600">
+                We guide you in finding the best international flight deals to Malé. Our team provides recommendations and assistance to ensure you get the best value for your journey.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-4" className="bg-white/60 backdrop-blur-sm border-white/20 rounded-lg px-6">
+              <AccordionTrigger className="text-lg font-semibold text-gray-800 hover:text-cyan-600">
+                What's included in the group trips?
+              </AccordionTrigger>
+              <AccordionContent className="text-gray-600">
+                Our group trips include accommodation, daily ocean activities, cultural experiences, transfers, and most meals. We handle all the details so you can relax and enjoy.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-5" className="bg-white/60 backdrop-blur-sm border-white/20 rounded-lg px-6">
+              <AccordionTrigger className="text-lg font-semibold text-gray-800 hover:text-cyan-600">
+                Can I customize my trip?
+              </AccordionTrigger>
+              <AccordionContent className="text-gray-600">
+                Absolutely! We specialize in creating personalized experiences. Contact us to discuss your preferences, budget, and dream activities.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      </section>
+
+      {/* About D'Mar Section */}
+      {aboutContent && (
+        <section id="about" className="py-20 px-4 bg-gradient-to-br from-purple-50 via-pink-50 to-cyan-50">
+          <div className="container mx-auto max-w-6xl">
+            <div className="grid md:grid-cols-2 gap-12 items-center mb-16">
+              <div>
+                <Badge className="mb-6 bg-purple-100 text-purple-800 text-base px-4 py-1">
+                  {aboutContent.section_badge}
+                </Badge>
+                <h2 className="text-3xl md:text-5xl font-bold text-gray-800 mb-6">
+                  {aboutContent.section_title}
+                </h2>
+                <div className="space-y-4 text-lg text-gray-600">
+                  {aboutContent.story_paragraph_1 && <p>{aboutContent.story_paragraph_1}</p>}
+                  {aboutContent.story_paragraph_2 && <p>{aboutContent.story_paragraph_2}</p>}
+                  {aboutContent.story_paragraph_3 && <p>{aboutContent.story_paragraph_3}</p>}
+                  {aboutContent.story_paragraph_4 && <p className="pt-4">{aboutContent.story_paragraph_4}</p>}
+                </div>
+              </div>
+              <div className="relative">
+                {aboutContent.founder_image_url ? (
+                  <img 
+                    src={aboutContent.founder_image_url} 
+                    alt={`${aboutContent.founder_name} - D'Mar Travels Founder`}
+                    className="rounded-2xl shadow-2xl w-full h-auto max-h-[500px] object-cover"
+                  />
+                ) : (
+                  <img 
+                    src="/professional-female-diving-instructor-in-maldives-.jpg" 
+                    alt={`${aboutContent.founder_name} - D'Mar Travels Founder`}
+                    className="rounded-2xl shadow-2xl w-full h-auto max-h-[500px] object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = '/images/design-mode/v0_image-2(1).png'
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+
+            <Card className="bg-white/60 backdrop-blur-sm border-white/20 p-8 md:p-12">
+              <div className="grid md:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-4">{aboutContent.founder_title}</h3>
+                  {aboutContent.founder_bio_paragraph_1 && (
+                    <p className="text-gray-600 mb-6">
+                      {aboutContent.founder_bio_paragraph_1}
+                    </p>
+                  )}
+                  {aboutContent.founder_bio_paragraph_2 && (
+                    <p className="text-gray-600">
+                      {aboutContent.founder_bio_paragraph_2}
+                    </p>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="text-center p-6 bg-cyan-50 rounded-lg">
+                    <Waves className="h-12 w-12 text-cyan-600 mx-auto mb-3" />
+                    <p className="text-3xl font-bold text-cyan-600">{aboutContent.stat_dives_number}</p>
+                    <p className="text-gray-600">{aboutContent.stat_dives_label}</p>
+                  </div>
+                  <div className="text-center p-6 bg-blue-50 rounded-lg">
+                    <Award className="h-12 w-12 text-blue-600 mx-auto mb-3" />
+                    <p className="text-lg font-bold text-blue-600">{aboutContent.stat_certification_title}</p>
+                    <p className="text-gray-600">{aboutContent.stat_certification_label}</p>
+                  </div>
+                  <div className="text-center p-6 bg-teal-50 rounded-lg">
+                    <Users className="h-12 w-12 text-teal-600 mx-auto mb-3" />
+                    <p className="text-3xl font-bold text-teal-600">{aboutContent.stat_guests_number}</p>
+                    <p className="text-gray-600">{aboutContent.stat_guests_label}</p>
+                  </div>
+                  <div className="text-center p-6 bg-purple-50 rounded-lg">
+                    <Heart className="h-12 w-12 text-purple-600 mx-auto mb-3" />
+                    <p className="text-lg font-bold text-purple-600">{aboutContent.stat_passion_title}</p>
+                    <p className="text-gray-600">{aboutContent.stat_passion_label}</p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </section>
+      )}
+
+      {/* Why Choose D'Mar Section */}
+      <section className="py-20 px-4 bg-white">
+        <div className="container mx-auto">
+          <div className="text-center mb-16">
+            <Badge className="mb-6 bg-cyan-100 text-cyan-800 text-base px-4 py-1">Why Choose Us</Badge>
+            <h2 className="text-3xl md:text-5xl font-bold text-gray-800 mb-4">
+              Ready to Book Your Dream Trip?
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Why choose D'Mar Travels for your Maldives adventure
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <Card className="p-8 text-center bg-white/60 backdrop-blur-sm border-white/20 hover:shadow-lg transition-all">
+              <div className="w-16 h-16 bg-cyan-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Globe className="h-8 w-8 text-cyan-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-4">Best Prices, Direct Deals</h3>
+              <p className="text-gray-600">
+                No middleman markups - work directly with us for the best value
+              </p>
+            </Card>
+
+            <Card className="p-8 text-center bg-white/60 backdrop-blur-sm border-white/20 hover:shadow-lg transition-all">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Users className="h-8 w-8 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-4">Small Groups, Big Adventures</h3>
+              <p className="text-gray-600">
+                Intimate group sizes ensure personalized attention and authentic experiences
+              </p>
+            </Card>
+
+            <Card className="p-8 text-center bg-white/60 backdrop-blur-sm border-white/20 hover:shadow-lg transition-all">
+              <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Heart className="h-8 w-8 text-purple-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-4">Personalized Attention</h3>
+              <p className="text-gray-600">
+                Every detail is crafted to create your perfect Maldives experience
+              </p>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section id="contact" className="py-20 px-4 bg-gradient-to-br from-cyan-50 via-blue-50 to-purple-50">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <Badge className="mb-6 bg-cyan-100 text-cyan-700 border-cyan-200 text-base px-4 py-1">
+              Contact Us
+            </Badge>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4 text-gray-900">Get in Touch</h2>
+            <p className="text-xl text-gray-600">
+              Ready to start your Maldivian adventure? Contact us today to book your experience or ask any questions.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="p-8 text-center bg-white/60 backdrop-blur-sm border-white/20 hover:shadow-lg transition-shadow">
+              <MapPin className="h-12 w-12 text-cyan-600 mx-auto mb-4" />
+              <h3 className="text-xl font-bold mb-2 text-gray-900">Location</h3>
+              <p className="text-gray-600">Ukulhas, Maldives</p>
+            </Card>
+
+            <Card className="p-8 text-center bg-white/60 backdrop-blur-sm border-white/20 hover:shadow-lg transition-shadow">
+              <Mail className="h-12 w-12 text-cyan-600 mx-auto mb-4" />
+              <h3 className="text-xl font-bold mb-2 text-gray-900">Email</h3>
+              <a href="mailto:dmar.oceana@gmail.com" className="text-gray-600 hover:text-cyan-600">
+                dmar.oceana@gmail.com
+              </a>
+            </Card>
+
+            <Card className="p-8 text-center bg-white/60 backdrop-blur-sm border-white/20 hover:shadow-lg transition-shadow">
+              <Phone className="h-12 w-12 text-cyan-600 mx-auto mb-4" />
+              <h3 className="text-xl font-bold mb-2 text-gray-900">Phone</h3>
+              <a href="tel:+4915126720043" className="text-gray-600 hover:text-cyan-600">
+                +49 1512 6720043
+              </a>
+            </Card>
+          </div>
+
+          <div className="text-center mt-12">
+            <Link href="/booking">
+              <Button size="lg" className="bg-cyan-600 hover:bg-cyan-700 text-white text-lg px-10">
+                <Calendar className="mr-2 h-5 w-5" />
+                Book Your Adventure
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <img src="/dmar-logo-final.png" alt="D'Mar Travels" className="h-8 w-auto" />
+                <span className="text-xl font-bold">D'Mar</span>
+              </div>
+              <p className="text-gray-400 text-sm">
+                Your gateway to the Maldives: ocean adventures, affordable stays, and unforgettable group journeys.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-bold mb-4">Our Services</h4>
+              <div className="space-y-2 text-sm">
+                <Link href="/services/diving" className="block text-gray-400 hover:text-white">Ocean Excursions</Link>
+                <Link href="/services/fishing" className="block text-gray-400 hover:text-white">Fishing Trips</Link>
+                <Link href="/services/excursions" className="block text-gray-400 hover:text-white">Group Adventures</Link>
+                <Link href="/hotels" className="block text-gray-400 hover:text-white">Local Islands</Link>
+                <Link href="/resorts" className="block text-gray-400 hover:text-white">Resort Stays</Link>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-bold mb-4">Contact Us</h4>
+              <div className="space-y-2 text-sm text-gray-400">
+                <p>dmar.oceana@gmail.com</p>
+                <p>+49 1512 6720043</p>
+                <p>Ukulhas, Maldives</p>
+              </div>
+            </div>
+
+            <div>
+              <h4 className="font-bold mb-4">Follow Us</h4>
+              <div className="space-y-2 text-sm">
+                <a href="https://instagram.com/d.marmaid" target="_blank" rel="noopener noreferrer" className="flex items-center text-gray-400 hover:text-white">
+                  <Instagram className="h-4 w-4 mr-2" />
+                  @d.marmaid
+                </a>
+                <p className="text-gray-400">dmarexplore.com</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-800 pt-8 text-center text-sm text-gray-400">
+            <p>© {new Date().getFullYear()} D'Mar Travels. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  )
+}
